@@ -1,57 +1,61 @@
 import 'package:flutter/material.dart';
 void main()=>runApp(const ZohanApp());
-class ZohanApp extends StatelessWidget{const ZohanApp({super.key}); @override Widget build(BuildContext c){return MaterialApp(debugShowCheckedModeBanner:false, home: const ZohanQuickMart());}}
+class ZohanApp extends StatelessWidget{const ZohanApp({super.key}); @override Widget build(BuildContext c){return MaterialApp(debugShowCheckedModeBanner:false, home: const ZohanBazaar());}}
 
-// Delivery Charge Logic - Tumhari Planning
-int calculateDelivery(double km){
-  int effectiveKm;
-  double fraction = km - km.floor();
-  if(fraction <= 0.5){ effectiveKm = km.floor(); } else { effectiveKm = km.ceil(); }
-  if(effectiveKm <= 4) return 100;
-  return 100 + (effectiveKm - 4) * 20;
-}
-
-class ZohanQuickMart extends StatefulWidget{const ZohanQuickMart({super.key}); @override State<ZohanQuickMart> createState()=>_ZohanQuickMartState();}
-class _ZohanQuickMartState extends State<ZohanQuickMart>{
-  List<Map> cart=[]; double distance=3.2; // Example: Nagan se customer 3.2 KM
-  List<Map> items=[
-    {'name':'Atta 10KG','price':1250,'cat':'Atta Cheeni','icon':Icons.agriculture},
-    {'name':'Cheeni 5KG','price':550,'cat':'Atta Cheeni','icon':Icons.cake},
-    {'name':'Ghee 5KG','price':2850,'cat':'Ghee Oil','icon':Icons.water_drop},
-    {'name':'Daal 1KG','price':380,'cat':'Daal Chawal','icon':Icons.grain},
-    {'name':'Sabzi Mix 5KG','price':650,'cat':'Sabzi','icon':Icons.eco},
-    {'name':'Nashta Pack','price':280,'cat':'Nashta','icon':Icons.breakfast_dining},
-    {'name':'Pampers','price':1850,'cat':'Bachon ki','icon':Icons.child_care},
-    {'name':'Ladies Private Pack','price':650,'cat':'Ladies Private','icon':Icons.privacy_tip, 'private':true},
+class ZohanBazaar extends StatefulWidget{const ZohanBazaar({super.key}); @override State<ZohanBazaar> createState()=>_ZohanBazaarState();}
+class _ZohanBazaarState extends State<ZohanBazaar>{
+  List<Map> cart=[]; String filter='Zohan Own';
+  List<Map> products=[
+    // Phase 1 - Apni Products - Trust ke liye
+    {'name':'Atta 10KG','price':1250,'owner':'Zohan Own','cat':'Grocery','icon':Icons.agriculture, 'comm':0},
+    {'name':'Taza Sabzi 5KG','price':650,'owner':'Zohan Own','cat':'Vegetables','icon':Icons.eco, 'comm':0},
+    {'name':'Bakery Cake','price':850,'owner':'Zohan Own','cat':'Bakery','icon':Icons.cake, 'comm':0},
+    {'name':'Nashta Halwa Puri','price':280,'owner':'Zohan Own','cat':'Nashta','icon':Icons.breakfast_dining, 'comm':0},
+    // Phase 2 - Logon ki Products - Commission par
+    {'name':'Hand Made Bag','price':1200,'owner':'Ayesha - Nazimabad','cat':'Others','icon':Icons.shopping_bag, 'comm':10},
+    {'name':'Wooden Chair','price':4500,'owner':'Irfan - Nagan','cat':'Others','icon':Icons.chair, 'comm':15},
+    {'name':'Bachon ke Kapre','price':950,'owner':'Fatima - Nazimabad','cat':'Others','icon':Icons.child_care, 'comm':12},
   ];
-  String cat='All';
-  int get deliveryCharge => calculateDelivery(distance);
-  int get subtotal => cart.fold(0, (s,i)=>s+(i['price'] as int));
-  int get grandTotal => subtotal + deliveryCharge;
+  int get total=>cart.fold(0, (s,i)=>s+(i['price'] as int));
+  int get commissionEarn=>cart.fold(0, (s,i)=>s+((i['price'] as int)*(i['comm'] as int)~/100));
 
   @override Widget build(BuildContext context){
-    var filtered=cat=='All'?items:items.where((x)=>x['cat']==cat).toList();
+    var list=filter=='All'?products:products.where((x)=>x['owner']==filter || (filter=='Others' && x['owner']!='Zohan Own')).toList();
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.black, title: const Text('ZOHAN - 30 Min Bazaar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), actions: [IconButton(onPressed: (){}, icon: const Icon(Icons.my_location, color: Colors.amber))]),
+      appBar: AppBar(backgroundColor: Colors.black, title: const Column(crossAxisAlignment: CrossAxisAlignment.start, children:[Text('ZOHAN BAZAAR', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), Text('Pehle apna, phir sab ka - Malik ALLAH hai', style: TextStyle(color: Colors.amber, fontSize: 10))]), actions: [IconButton(onPressed: (){}, icon: const Icon(Icons.storefront, color: Colors.amber))]),
       body: Column(children:[
-        Container(color: Colors.amber.shade100, padding: const EdgeInsets.all(10), child: Column(children:[
-          Row(children:[const Icon(Icons.delivery_dining, size: 18), const SizedBox(width:6), Expanded(child: Text('Delivery: 4KM tak Rs 100, har KM Rs 20 izafa - Distance: ${distance}KM = Rs $deliveryCharge', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)))]),
-          const SizedBox(height:6),
-          Slider(value: distance, min: 1, max: 10, divisions: 18, label: '${distance.toStringAsFixed(1)} KM', onChanged: (v)=>setState(()=>distance=v)),
-          const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children:[Text('1 KM', style: TextStyle(fontSize: 10)), Text('Nagan Point se tumhara ghar', style: TextStyle(fontSize: 10)), Text('10 KM', style: TextStyle(fontSize: 10))]),
+        Container(color: Colors.green.shade50, padding: const EdgeInsets.all(10), child: Row(children:[
+          Expanded(child: ChoiceChip(label: const Text('Zohan Own - Trust'), selected: filter=='Zohan Own', onSelected: (v)=>setState(()=>filter='Zohan Own'))),
+          const SizedBox(width:8),
+          Expanded(child: ChoiceChip(label: const Text('Logon ka Bazaar - Commission'), selected: filter=='Others', onSelected: (v)=>setState(()=>filter='Others'))),
         ])),
-        SizedBox(height:45, child: ListView(scrollDirection: Axis.horizontal, children:[
-          for(var c in ['All','Atta Cheeni','Ghee Oil','Daal Chawal','Sabzi','Nashta','Bachon ki','Ladies Private']) Padding(padding: const EdgeInsets.all(4), child: ChoiceChip(label: Text(c, style: const TextStyle(fontSize: 11)), selected: cat==c, onSelected: (v)=>setState(()=>cat=c))),
-        ])),
-        Expanded(child: GridView.builder(padding: const EdgeInsets.all(8), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.82), itemCount: filtered.length, itemBuilder: (ctx,i){
-          var it=filtered[i]; return Card(child: Column(children:[Expanded(child: Icon(it['icon'], size: 50, color: it['private']==true?Colors.pink:Colors.green)), Text(it['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)), Text('Rs ${it['price']}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.black, minimumSize: const Size(80, 30)), onPressed: ()=>setState(()=>cart.add(it)), child: const Text('ADD', style: TextStyle(color: Colors.amber, fontSize: 10)))]));
+        Container(color: Colors.black, padding: const EdgeInsets.all(6), child: const Row(children:[Icon(Icons.info, color: Colors.amber, size: 14), SizedBox(width:6), Expanded(child: Text('Apke paas paisa hai, market nahi? Hamare paas market hai - Zohan bech dega, commission de do', style: TextStyle(color: Colors.white, fontSize: 10)))])),
+        Expanded(child: GridView.builder(padding: const EdgeInsets.all(8), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.85), itemCount: list.length, itemBuilder: (ctx,i){
+          var it=list[i]; bool own=it['owner']=='Zohan Own';
+          return Card(child: Column(children:[
+            Expanded(child: Container(color: own?Colors.green.shade50:Colors.amber.shade50, child: Center(child: Icon(it['icon'], size: 50, color: own?Colors.green:Colors.black)))),
+            Padding(padding: const EdgeInsets.all(6), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
+              Text(it['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              Text(it['owner'], style: TextStyle(fontSize: 9, color: own?Colors.green:Colors.orange, fontWeight: FontWeight.bold)),
+              Row(children:[Text('Rs ${it['price']}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)), const Spacer(), if(!own) Text('${it['comm']}% comm', style: const TextStyle(fontSize: 9, color: Colors.red)), InkWell(onTap: ()=>setState(()=>cart.add(it)), child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10)), child: const Text('ADD', style: TextStyle(color: Colors.amber, fontSize: 10))))]),
+            ])),
+          ]));
         })),
-        if(cart.isNotEmpty) Container(padding: const EdgeInsets.all(12), color: Colors.black, child: Column(children:[
-          Row(children:[Text('Saman: Rs $subtotal + Delivery (${distance.toStringAsFixed(1)}KM): Rs $deliveryCharge', style: const TextStyle(color: Colors.white, fontSize: 11)), const Spacer(), Text('Total: Rs $grandTotal', style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold))]),
-          const SizedBox(height:6),
-          SizedBox(width: double.infinity, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.amber), onPressed: (){
-            showDialog(context: context, builder: (ctx)=>AlertDialog(title: const Text('Order Final?'), content: Text('Distance: ${distance.toStringAsFixed(1)} KM\n4.5=4KM, 4.6=5KM ke hisab se\nDelivery: Rs $deliveryCharge\nTotal: Rs $grandTotal\nLadies items 100% Private\n30-45 min me ghar par'), actions: [TextButton(onPressed: (){setState(()=>cart.clear()); Navigator.pop(ctx);}, child: const Text('ORDER KARO'))]));
-          }, child: const Text('30 MIN ME CHAHIYE - ORDER KARO', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)))),
+        Container(color: Colors.amber.shade100, padding: const EdgeInsets.all(10), child: InkWell(onTap: (){
+          showModalBottomSheet(context: context, builder: (ctx)=>Padding(padding: const EdgeInsets.all(16), child: Column(mainAxisSize: MainAxisSize.min, children:[
+            const Text('Apni Product Bechni Hai?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height:8),
+            const Text('Aap banao (Legal ho, Harmful na ho), Zohan bech dega. Aapke paas paisa hai, hamare paas market.', textAlign: TextAlign.center),
+            const TextField(decoration: InputDecoration(labelText: 'Kya banate ho? ex: Handmade Bags')),
+            const TextField(decoration: InputDecoration(labelText: 'Price kya hai?')),
+            const SizedBox(height:10),
+            SizedBox(width: double.infinity, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.black), onPressed: (){Navigator.pop(ctx); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Request Zohan ko mil gayi - 24h me contact karenge!')));}, child: const Text('ZOHAN PAR BECHO - COMMISSION DUNGA', style: TextStyle(color: Colors.amber, fontSize: 11)))),
+          ])));
+        }, child: const Row(mainAxisAlignment: MainAxisAlignment.center, children:[Icon(Icons.add_business, size: 18), SizedBox(width:6), Text('Tum jo chahe banao, Zohan bech dega - Yahan tap karo', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))]))),
+        if(cart.isNotEmpty) Container(padding: const EdgeInsets.all(10), color: Colors.black, child: Row(children:[
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children:[Text('Total: Rs $total', style: const TextStyle(color: Colors.white)), Text('Hamara Commission: Rs $commissionEarn', style: const TextStyle(color: Colors.amber, fontSize: 10))]),
+          const Spacer(),
+          ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.amber), onPressed: (){setState(()=>cart.clear());}, child: const Text('ORDER - 30 MIN', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11))),
         ])),
       ]),
     );
