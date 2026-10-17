@@ -1,9 +1,9 @@
 name: zohan
-description: Zohan Bazaar - Har Legal Cheez Milegi
+description: Zohan Bazaar - Har Legal Cheez Milegi - Malik ALLAH hai
 publish_to: 'none'
 version: 1.0.0+1
 environment:
-  sdk: '>=3.4.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter

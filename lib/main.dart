@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const ZohanApp());
-}
-
-class ZohanApp extends StatelessWidget {
+void main()=>runApp(const ZohanApp());
+class ZohanApp extends StatelessWidget{
   const ZohanApp({super.key});
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('ZOHAN - Malik ALLAH hai'),
-          backgroundColor: Colors.green,
-        ),
-        body: const Center(
+        backgroundColor: Colors.white,
+        appBar: AppBar(title: const Text('ZOHAN - Malik ALLAH hai'), backgroundColor: Colors.green, centerTitle: true),
+        body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Jo Bechna Chahte Ho,', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-              Text('Zohan Par Becho', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green)),
-              SizedBox(height: 20),
-              Text('Har Legal Cheez Milegi'),
-              SizedBox(height: 20),
-              Icon(Icons.check_circle, size: 80, color: Colors.green),
+              const Icon(Icons.store, size: 100, color: Colors.green),
+              const SizedBox(height: 20),
+              const Text('Jo Bechna Chahte Ho,', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              const Text('Zohan Par Becho', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.green)),
+              const SizedBox(height: 10),
+              const Text('Har Legal Cheez Milegi', style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15)),
+                onPressed: (){},
+                child: const Text('SHURU KARO', style: TextStyle(color: Colors.white, fontSize: 18)),
+              ),
             ],
           ),
         ),
